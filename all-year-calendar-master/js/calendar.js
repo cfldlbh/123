@@ -32,33 +32,8 @@ function loading_calendar(id,lan){
 
 
 (function() {
-	window.onload=function(){
-		  window.onresize = change;
-		  change();
-	} ;
 
-	function change(){
-		var obj=$(aim_div);
-		var m_obj=$(".fullYearPicker .month-container");
-		var width=obj.width();
-		var class_width="month-width-";
-		n=parseInt(width/400);
-		if(n==5)n=4;
-		if(n>6)n=6;
-
-		if(n!=m){
-			m_obj.removeClass(class_width+m);
-			m_obj.addClass(class_width+n);
-			m=n;
-		}
-
-	};
-
-	function changeHandle(){
-		m=0;
-		change();
-
-	}
+ 
 
 	//设置年份菜单
 	function setYearMenu(year){
@@ -72,6 +47,7 @@ function loading_calendar(id,lan){
 
 	//设置开始日期和结束日期
 	function setDateInfo(start_date,end_date){
+	
 		$("#hd-start-date").datepicker('setValue', start_date);
 		$("#hd-end-date").datepicker('setValue',end_date);
 	}
@@ -95,7 +71,7 @@ function loading_calendar(id,lan){
 	}
 	//年份 月份 clear 不能点的日期  选中的日期   tr里面有class wenkend
 	function renderMonth(year, month, clear, disabledDay, values) {
-
+			 
 		var d = new Date(year, month - 1, 1), s = "<div class='month-container'>"+'<table cellpadding="0" cellspacing="1" border="0"'
 				+ (clear ? ' class="right"' : '')
 				+ '>'
@@ -104,8 +80,10 @@ function loading_calendar(id,lan){
 				+ '</th></tr>'
 				+ '<tr><th class="weekend">'+week_arry[0]+'</th><th>'+week_arry[1]+'</th><th>'+week_arry[2]+'</th><th>'+week_arry[3]+'</th><th>'+week_arry[4]+'</th><th>'+week_arry[5]+'</th><th class="weekend">'+week_arry[6]+'</th></tr>';
 		var dMonth = month - 1;
-		var firstDay = d.getDay(), hit = false;
+		var firstDay = d.getDay(), hit = false; 
+		console.log("renderMonth---",year)
 		s += '<tr>';
+		//fisday 月的第一天是星期几， 
 		for (var i = 0; i < 7; i++)
 			if (firstDay == i || hit) {
 				s += '<td'
@@ -140,20 +118,20 @@ function loading_calendar(id,lan){
 		return td.parentNode.parentNode.rows[0].cells[0].getAttribute('index')+"-"+ td.innerHTML;
 	}
 	//el  就算class为 fullYearPicker 的标签
-	function renderYear(year, el, disabledDay, value) {
+	function renderYear(year, el, disabledDay, value,month) {
 
 		el.find('td').unbind();//解除所有绑定事件
 		var s = '', values = ',' + value.join(',') + ',';
 
-		for (var i = 1; i <= 6; i++)
-			s += renderMonth(year, i, false, disabledDay, values);
+		 //month
+			s += renderMonth(year, 6, false, disabledDay, values);
 			s+="<div class='date_clear'></div>";
 		el
 				.find('div.picker')
 				.html(s)
 				.find('td')
 
-		changeHandle();
+	 
 		
 		day_drap_listen();
 	}
@@ -231,10 +209,13 @@ function loading_calendar(id,lan){
 		/* console.log("选择:"+start+","+end); */
 		//清除选中单元格的样式
 		$(".month-container .selected").removeClass("selected");
+		
 		var start_month=parseInt(start.split("-")[0]);
 		var start_day=parseInt(start.split("-")[1]);
 		var end_month=parseInt(end.split("-")[0]);
 		var end_day=parseInt(end.split("-")[1]);
+		console.log("月份悬着",start_month,"--",end_month)
+		console.log("ri",start_day," --",end_day)
 		/* console.log("start_month:"+start_month);
 		console.log("start_day:"+start_day);
 		console.log("end_month:"+end_month);
@@ -245,36 +226,26 @@ function loading_calendar(id,lan){
 			}else{
 				select_month(start_month, end_day, start_day,new_class);
 			}
-		}else if(start_month<end_month){
-			select_month(start_month, start_day, max,new_class);
-			for(var i=start_month+1;i<end_month;i++){
-				select_month(i, 1, max,new_class);
-			}
-			select_month(end_month, 1, end_day,new_class);
-		}else if(start_month>end_month){
-			select_month(start_month, 1, start_day,new_class);
-			for(var i=end_month+1;i<start_month;i++){
-				select_month(i, 1, max,new_class);
-			}
-			select_month(end_month, end_day, max,new_class);
 		}
+		
 
 	}
 	/*按月加载样式*/
 	function select_month(month,start,end,new_class){
-		month=month-1;
-		$(".fullYearPicker .picker .month-container:eq("+month+") td").each(function(){
+		 
+		$(".fullYearPicker .picker .month-container  td").each(function(){
 			var num=$(this).text();
 			if(num>=start&&num<=end){
 				/* $(this).addClass("selected"); */
-				$(this).removeClass("workday freeday").addClass(new_class);
+				$(this).removeClass("kg zt qj").addClass(new_class);
 			}
 		});
 
 	}
 
 	function open_modal(start_date,end_date){
-		var year=$("#cen_year").text();
+		debugger
+		var year=$("#cen_year").val();
 		start_date=year+"-"+start_date;
 		end_date=year+"-"+end_date;
 		if(start_date!=null){
@@ -333,6 +304,7 @@ function loading_calendar(id,lan){
 			disabledDay : '',
 			value : []
 		}, config);
+		console.log(this.data("config"))
 		return this
 				.addClass('fullYearPicker')
 				.each(
@@ -345,44 +317,12 @@ function loading_calendar(id,lan){
 							};
 							me.data('config', newConifg);
 
-							me.append('<div class="year">'
-													+'<table>'
-													+'<th class="year-operation-btn"><a href="#"  class="am-icon-chevron-left"></a></th>'
-													+'<th class="left_sencond_year year_btn">'+ ''+'</th>'
-													+'<th class="left_first_year year_btn">'+ ''+'</th>'
-													+'<th id="cen_year" class="cen_year year_btn">'+ year+'</th>'
-													+'<th class="right_first_year year_btn">'+ ''+'</th>'
-													+'<th class="right_sencond_year year_btn">'+ ''+'</th>'
-													+'<th class="year-operation-btn"><a href="#" class="next am-icon-chevron-right"></a></th>'
-													+'</table>'
-													+'<div class="stone"></div></div><div class="picker"></div>')
-									.find('.year-operation-btn')
-									.click(
-											function(e, setYear) {
-												if (setYear)
-													year = me.data('config').year;
-												else
-													$(this).children("a").attr("class")== 'am-icon-chevron-left' ? year--: year++;
-												setYearMenu(year);
-												//设置年份 year是要设置为哪一年，接着这年的月份都会变动   参数3 不允许选择的星期列，注意星期日是0，其他一样 参数4选中的值，注意为数组字符串
-												renderYear(
-														year,
-														$(this).closest('div.fullYearPicker'),
-														newConifg.disabledDay,
-														newConifg.value);
-												document.getElementById("cen_year").firstChild.data=year;
-												return false;
-											});
-							setYearMenu(year);
-							//年份选择
-							$(".year .year_btn").click(function(){
-								var class_name=$(this).attr("class");
-								if(class_name.indexOf("cen_year")<0){
-									var year=parseInt($(this).text());
-									setYearMenu(year);
-									renderYear(year, me, newConifg.disabledDay,newConifg.value);
-								}
-							});
+							me.append(' <div class="picker"></div><input id="cen_year" type="hidden" value="'+year+'"/>');
+							
+										console.log(year)
+										console.log(newConifg.disabledDay)
+										console.log(newConifg.value)
+						 //s设置的年或者当前年，me 当前日历div对象  
 							renderYear(year, me, newConifg.disabledDay,
 									newConifg.value);
 
